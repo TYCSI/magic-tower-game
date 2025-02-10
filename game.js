@@ -95,23 +95,4 @@ document.addEventListener("keydown", (e) => {
 
     drawGame();
 });
-
-// 處理鍵盤移動
-document.addEventListener("keydown", (e) => {
-    let newX = player.x;
-    let newY = player.y;
-    if (e.key === "ArrowUp") newY--;
-    if (e.key === "ArrowDown") newY++;
-    if (e.key === "ArrowLeft") newX--;
-    if (e.key === "ArrowRight") newX++;
-    
-    // 檢查是否可以移動
-    if (map[newY][newX] !== 1) {
-        player.x = newX;
-        player.y = newY;
-    }
-
-    drawGame();
-});
-
 drawGame();

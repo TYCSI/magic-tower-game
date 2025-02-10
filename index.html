@@ -6,11 +6,13 @@
     <title>魔塔遊戲</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
-        canvas { background: #000; }
+        canvas { background: #000; display: block; margin: auto; }
+        #stats { margin-top: 10px; }
     </style>
 </head>
 <body>
     <h1>魔塔遊戲</h1>
+    <div id="stats">HP: <span id="hp">100</span> | ATK: <span id="atk">10</span></div>
     <canvas id="gameCanvas" width="320" height="320"></canvas>
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -21,18 +23,25 @@
         
         const map = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 1, 0, 0, 2, 0, 1],
             [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
-            [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 1, 0, 0, 3, 1, 0, 0, 1],
             [1, 0, 1, 1, 1, 1, 1, 0, 1, 1],
             [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ];
         
+        const enemies = {
+            2: { hp: 20, atk: 5 },
+            3: { hp: 50, atk: 15 }
+        };
+        
         function drawMap() {
             for (let y = 0; y < map.length; y++) {
                 for (let x = 0; x < map[y].length; x++) {
-                    ctx.fillStyle = map[y][x] === 1 ? "gray" : "white";
+                    if (map[y][x] === 1) ctx.fillStyle = "gray";
+                    else if (map[y][x] === 2 || map[y][x] === 3) ctx.fillStyle = "red";
+                    else ctx.fillStyle = "white";
                     ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
                 }
             }
@@ -47,6 +56,17 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             drawMap();
             drawPlayer();
+            document.getElementById("hp").innerText = player.hp;
+            document.getElementById("atk").innerText = player.atk;
+        }
+        
+        function fightEnemy(enemyType) {
+            let enemy = enemies[enemyType];
+            while (player.hp > 0 && enemy.hp > 0) {
+                enemy.hp -= player.atk;
+                if (enemy.hp > 0) player.hp -= enemy.atk;
+            }
+            return player.hp > 0;
         }
         
         document.addEventListener("keydown", (event) => {
@@ -60,6 +80,15 @@
             if (map[newY] && map[newY][newX] === 0) {
                 player.x = newX;
                 player.y = newY;
+            } else if (enemies[map[newY][newX]]) {
+                if (fightEnemy(map[newY][newX])) {
+                    map[newY][newX] = 0;
+                    player.x = newX;
+                    player.y = newY;
+                } else {
+                    alert("遊戲結束！");
+                    location.reload();
+                }
             }
             updateGame();
         });
